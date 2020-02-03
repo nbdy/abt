@@ -22,9 +22,8 @@ allprojects {
   }
 }
 // project build.gradle
-// {current-version} is (as of 02.02.20) 4d87495bc9, but check jitpack to be sure
 dependencies {
   ...
-  implementation 'com.github.smthnspcl:abt:{current-version}'
+  implementation 'com.github.smthnspcl:abt:master-SNAPSHOT'
 }
 ```
