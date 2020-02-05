@@ -306,7 +306,6 @@ public class BT {
 
     interface ClientInterface {
         void onReady();
-        void onEverythingSent();
         void onExecuted();
         void onFinished();
     }
