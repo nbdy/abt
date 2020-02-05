@@ -60,7 +60,6 @@ public class BT {
 
         private static OnEventListener onEventListener;
         private static List<BluetoothDevice> devices = new ArrayList<>();
-        private static final List<BroadcastReceiver> receivers = new ArrayList<>();
 
         private static final BroadcastReceiver deviceFoundReceiver = new BroadcastReceiver() {
             @Override
