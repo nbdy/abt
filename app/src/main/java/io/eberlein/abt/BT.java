@@ -362,8 +362,11 @@ public class BT {
                     try {
                         bytes = inputStream.read(buffer);
                         String data = new String(buffer, 0, bytes);
-                        if(data.equals(DATA_IS_READY)) writerInterface.inform(MSG_REMOTE_READY);
-                        else onDataReceivedInterface.onReceived(data);
+                        for(String s : data.split("\n")) {
+                            if (data.equals(DATA_IS_READY))
+                                writerInterface.inform(MSG_REMOTE_READY);
+                            else onDataReceivedInterface.onReceived(data);
+                        }
                     } catch (IOException e){
                         e.printStackTrace();
                         doRun = false;
@@ -415,6 +418,7 @@ public class BT {
                 try {
                     Log.d(TAG, "sending: " + data);
                     outputStream.write(data.getBytes());
+                    outputStream.write("\n".getBytes());
                     outputStream.flush();
                     return true;
                 } catch (IOException e) {
