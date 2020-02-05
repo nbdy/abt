@@ -434,10 +434,8 @@ public class BT {
                             e.printStackTrace();
                         }
                     } else {
-                        for(String s : sendData) {
-                            doRun = writeFlush(s);
-                            sendData.remove(s);
-                        }
+                        for(String s : sendData) doRun = writeFlush(s);
+                        sendData.clear();
                     }
                 }
                 writerInterface.finished();
