@@ -363,9 +363,9 @@ public class BT {
                         bytes = inputStream.read(buffer);
                         String data = new String(buffer, 0, bytes);
                         for(String s : data.split("\n")) {
-                            if (data.equals(DATA_IS_READY))
+                            if (s.equals(DATA_IS_READY))
                                 writerInterface.inform(MSG_REMOTE_READY);
-                            else onDataReceivedInterface.onReceived(data);
+                            else onDataReceivedInterface.onReceived(s);
                         }
                     } catch (IOException e){
                         e.printStackTrace();
