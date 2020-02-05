@@ -335,9 +335,11 @@ public class BT {
             private static final String TAG = "BT.Client.Reader";
 
             static final String DATA_IS_READY = "READY";
+            static final String DATA_IS_DONE = "DONE";
             static final int MSG_READER_DEAD = -1;
             static final int MSG_READER_READY = 0;
             static final int MSG_REMOTE_READY = 1;
+            static final int MSG_REMOTE_DONE = 2;
 
             private InputStream inputStream;
             private boolean doRun;
@@ -363,6 +365,7 @@ public class BT {
                         bytes = inputStream.read(buffer);
                         String data = new String(buffer, 0, bytes);
                         if(data.equals(DATA_IS_READY)) writerInterface.inform(MSG_REMOTE_READY);
+                        else if(data.equals(DATA_IS_DONE)) {writerInterface.inform(MSG_REMOTE_DONE); doRun = false;}
                         else onDataReceivedInterface.onReceived(data);
                     } catch (IOException e){
                         e.printStackTrace();
@@ -472,6 +475,7 @@ public class BT {
                 if(message == Reader.MSG_READER_READY) readerIsReady = true;
                 else if(message == Reader.MSG_REMOTE_READY) remoteReaderIsReady = true;
                 else if(message == Reader.MSG_READER_DEAD) doRun = false;
+                else if(message == Reader.MSG_REMOTE_DONE) doRun = false;
             }
         }
 
@@ -578,5 +582,7 @@ public class BT {
         protected void addSendData(List<String> data){
             writer.addSendData(data);
         }
+
+        protected void addSendDataEndTransmission() {writer.addSendData(Reader.DATA_IS_DONE);}
     }
 }
