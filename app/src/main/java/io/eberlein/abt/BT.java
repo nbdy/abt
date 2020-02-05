@@ -407,6 +407,7 @@ public class BT {
 
             private boolean readerIsReady = false;
             private boolean remoteReaderIsReady = false;
+            private boolean sentIsReady = false;
 
             Writer(OutputStream outputStream, WriterInterface writerInterface){
                 this.outputStream = outputStream;
@@ -432,12 +433,14 @@ public class BT {
                     if(!readerIsReady) continue;
                     if(!remoteReaderIsReady) {
                         writeFlush(Reader.DATA_IS_READY);
+                        sentIsReady = true;
                         try {
                             Thread.sleep(420);
                         } catch (InterruptedException e){
                             e.printStackTrace();
                         }
                     } else {
+                        if(!sentIsReady) {writeFlush(Reader.DATA_IS_READY); sentIsReady = true;}
                         for(String s : sendData) doRun = writeFlush(s);
                         sendData.clear();
                     }
