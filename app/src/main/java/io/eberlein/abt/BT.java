@@ -45,6 +45,10 @@ import java.util.List;
 import java.util.UUID;
 
 
+/**
+** onCreate: BT.create(Context)
+ * onDestroy: BT.destroy(Context)
+*/
 public class BT {
     private static BluetoothManager manager;
     private static BluetoothAdapter adapter;
@@ -94,74 +98,133 @@ public class BT {
             }
         };
 
+        /**
+         * initializes the library
+         * @param ctx App context
+         */
         static void init(Context ctx){
             ctx.registerReceiver(deviceFoundReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
             ctx.registerReceiver(discoveryStartedReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
             ctx.registerReceiver(discoveryFinishedReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
         }
 
+        /**
+         * @return list of found devices
+         */
         public static List<BluetoothDevice> getDevices() {
             return devices;
         }
 
+        /**
+         * @param ctx App context
+         */
         static void unregisterReceivers(Context ctx){
             ctx.unregisterReceiver(deviceFoundReceiver);
             ctx.unregisterReceiver(discoveryStartedReceiver);
             ctx.unregisterReceiver(discoveryFinishedReceiver);
         }
 
+        /**
+         * starts the discovery
+         * @param oel your defined on event listener
+         * @return True if discovery has successfully started
+         */
         public static boolean startDiscovery(OnEventListener oel){
             onEventListener = oel;
             devices = new ArrayList<>();
             return adapter.startDiscovery();
         }
 
+        /**
+         * cancels the discovery
+         * @return True if discovery has successfully been cancelled
+         */
         public static boolean cancelDiscovery(){
             return adapter.cancelDiscovery();
         }
     }
 
+    /**
+     * initializes the library
+     * @param ctx App context
+     */
     public static void create(Context ctx){
         manager = (BluetoothManager) ctx.getSystemService(Context.BLUETOOTH_SERVICE);
         adapter = manager.getAdapter();
         ClassicScanner.init(ctx);
     }
 
+    /**
+     * cleans everything up
+     * @param ctx App context
+     */
     public static void destroy(Context ctx){
         ClassicScanner.unregisterReceivers(ctx);
     }
 
+    /**
+     * enables the bluetooth adapter
+     */
     public static void enable(){
         adapter.enable();
     }
 
+    /**
+     * disables the bluetooth adapter
+     */
     public static void disable(){
         adapter.disable();
     }
 
+    /**
+     * checks if bluetooth is supported on this device
+     * @return True if bluetooth is supported on this device
+     */
     public static boolean supported(){
         return adapter != null;
     }
 
+    /**
+     *
+     * @return True if adapter is discovering
+     */
     public static boolean isDiscovering(){
         return adapter.isDiscovering();
     }
 
+    /**
+     *
+     * @return visible bluetooth name
+     */
     public static String getName(){
         return adapter.getName();
     }
 
+    /**
+     *
+     * @return bluetooth mac address
+     */
     @SuppressLint("HardwareIds")
     public static String getAddress(){
         return adapter.getAddress();
     }
 
+    /**
+     * asks the user (or not, looking at huawei) to enable bluetooth discoverability
+     * @param ctx App context
+     * @param duration seconds
+     */
     public static void setDiscoverable(Context ctx, int duration){
         Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         i.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, duration);
         ctx.startActivity(i);
     }
 
+    /**
+     * returns if device is in the bonded devices list
+     * @param device the bluetooth device to check against
+     * @return if is in bounded devices list
+     */
     public static boolean isDeviceBonded(BluetoothDevice device){
         return adapter.getBondedDevices().contains(device);
     }
@@ -175,6 +238,11 @@ public class BT {
         private static ConnectionInterface connectionInterface;
         private static BluetoothSocket socket = null;
 
+        /**
+         * registers the Broadcast Receiver and calls functions of the ConnectionInterface
+         * @param ctx App context
+         * @param ci Instance of ConnectionInterface
+         */
         public static void register(Context ctx, ConnectionInterface ci){
             connectionInterface = ci;
             ctx.registerReceiver(connectionReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
@@ -190,6 +258,11 @@ public class BT {
             }
         };
 
+        /**
+         * connects to specific device and uuid
+         * @param device Bluetooth device to connect to
+         * @param uuid UUID of service
+         */
         public static void connect(BluetoothDevice device, UUID uuid){
             try {
                 socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
@@ -199,15 +272,27 @@ public class BT {
             }
         }
 
+        /**
+         * gets the created socket instance
+         * @return socket of connected bluetooth device
+         */
         public static BluetoothSocket getSocket() {
             return socket;
         }
 
+        /**
+         * unregisters bluetooth receiver
+         * @param ctx App context
+         */
         public static void unregister(Context ctx){
             ctx.unregisterReceiver(connectionReceiver);
         }
     }
 
+    /**
+     *
+     * @return True if bluetooth is enabled
+     */
     public static boolean isEnabled(){
         return adapter.isEnabled();
     }
@@ -228,10 +313,20 @@ public class BT {
         private static final String TAG = "BT.Server";
         private BluetoothServerSocket serverSocket;
 
+        /**
+         * creates a Server instance
+         * @param name bluetooth device name
+         * @param uuid uuid of service
+         */
         public Server(String name, UUID uuid){
             createServerSocket(name, uuid);
         }
 
+        /**
+         * creates the actual server socket
+         * @param name name
+         * @param uuid uuid
+         */
         @Override
         public void createServerSocket(String name, UUID uuid) {
             try{
@@ -263,11 +358,19 @@ public class BT {
             e.printStackTrace();
         }
 
+        /**
+         * informs if a client has connected
+         * @param socket socket to connected client
+         */
         @Override
         public void onClientConnected(BluetoothSocket socket) {
             Log.d(TAG, "client '" + socket.getRemoteDevice().getName() + "; " + socket.getRemoteDevice().getAddress() + "' connected");
         }
 
+        /**
+         * accepts new client
+         * @return socket to connected client
+         */
         @Override
         public BluetoothSocket acceptServerSocket() {
             try {
@@ -346,6 +449,13 @@ public class BT {
             private ReaderInterface readerInterface;
             private WriterInterface writerInterface;
 
+            /**
+             * instantiates a Reader object
+             * @param inputStream socket input stream
+             * @param onDataReceivedInterface onDataReceivedInterface
+             * @param readerInterface readerInterface for ipc
+             * @param writerInterface writerInterface for ipc
+             */
             Reader(InputStream inputStream, OnDataReceivedInterface onDataReceivedInterface, ReaderInterface readerInterface, WriterInterface writerInterface){
                 this.inputStream = inputStream;
                 this.onDataReceivedInterface = onDataReceivedInterface;
@@ -409,12 +519,23 @@ public class BT {
             private boolean remoteReaderIsReady = false;
             private boolean sentIsReady = false;
 
+            /**
+             * instantiates a writer object
+             * @param outputStream socket outputStream
+             * @param writerInterface writerInterface for ipc
+             */
             Writer(OutputStream outputStream, WriterInterface writerInterface){
                 this.outputStream = outputStream;
                 this.writerInterface = writerInterface;
                 doRun = true;
             }
 
+            /**
+             * writes to the socket and flushes directly afterwards
+             * attaches a '\n' to the end of each messages
+             * @param data data to be sent
+             * @return True if there was no exception
+             */
             private boolean writeFlush(String data){
                 try {
                     Log.d(TAG, "sending: " + data);
@@ -522,11 +643,20 @@ public class BT {
             }
         };
 
+        /**
+         * instantiates a new client object
+         * @param socket the acquired socket
+         * @param onDataReceivedInterface onDataReceiveInterface
+         */
         public Client(BluetoothSocket socket, OnDataReceivedInterface onDataReceivedInterface){
             this.socket = socket;
             this.onDataReceivedInterface = onDataReceivedInterface;
         }
 
+        /**
+         * checks if the socket is not null and connected
+         * @return True if everything is fine
+         */
         private boolean preCheck(){
             if(socket == null) {
                 Log.e(TAG, "socket is null");
@@ -546,6 +676,9 @@ public class BT {
             Log.d(TAG, "executed reader and writer");
         }
 
+        /**
+         * instantiates a reader and writer object and passes input/output stream to them
+         */
         void run() {
             if(!preCheck()) return;
             try {
@@ -564,6 +697,9 @@ public class BT {
             }
         }
 
+        /**
+         * stops both reader and writer and closes the socket
+         */
         public void stop(){
             if(reader != null) reader.stop();
             if(writer != null) writer.stop();
@@ -580,12 +716,24 @@ public class BT {
             return null;
         }
 
+        /**
+         *
+         * @return length of the writer to-be-send data queue
+         */
         public int getSendDataQueueSize(){return writer.getSendDataQueueSize();}
 
+        /**
+         * adds data to the to-be-send ata queue
+         * @param data data to add
+         */
         protected void addSendData(String data){
             writer.addSendData(data);
         }
 
+        /**
+         * adds data to the to-be-send ata queue
+         * @param data data to add
+         */
         protected void addSendData(List<String> data){
             writer.addSendData(data);
         }
