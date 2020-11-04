@@ -24,6 +24,6 @@ allprojects {
 // project build.gradle
 dependencies {
   ...
-  implementation 'com.github.smthnspcl:abt:master-SNAPSHOT'
+  implementation 'com.github.nbdy:abt:master-SNAPSHOT'
 }
 ```
