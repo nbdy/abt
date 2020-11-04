@@ -10,9 +10,9 @@ did not find a (good) library for classic bluetooth stuff
 ##### le
 none
 #### example
-[see this](https://github.com/smthnspcl/android_contacts/blob/master/app/src/main/java/io/eberlein/contacts/ui/FragmentSync.java)
+[see this](https://github.com/nbdy/android_contacts/blob/master/app/src/main/java/io/eberlein/contacts/ui/FragmentSync.java)
 #### gradle
-[jitpack](https://jitpack.io/#smthnspcl/abt/)
+[jitpack](https://jitpack.io/#nbdy/abt/)
 ```
 // top level build.gradle
 allprojects {
